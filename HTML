@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Builder Dossier</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #fffdf9;
+    --surface-raised: #ffffff;
+    --ink: #1e1c17;
+    --text: #3a372f;
+    --muted: #948d7d;
+    --line: rgba(30,28,23,0.12);
+    --line-strong: rgba(30,28,23,0.22);
+    --accent: #ad8a4e;
+    --accent-strong: #7d5f30;
+    --accent-soft: rgba(173,138,78,0.14);
+    --accent-ink: #2c2210;
+    --status-good: #3f6b4f;
+    --status-good-soft: rgba(63,107,79,0.12);
+    --status-neutral: #ad8a4e;
+    --status-neutral-soft: rgba(173,138,78,0.14);
+    --status-caution: #56677a;
+    --status-caution-soft: rgba(86,103,122,0.12);
+    --status-attn: #9c5a3c;
+    --status-attn-soft: rgba(156,90,60,0.12);
+    --shadow: 0 1px 2px rgba(30,28,23,0.04), 0 12px 32px -16px rgba(30,28,23,0.18);
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Instrument Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14130f;
+      --surface: #1c1a14;
+      --surface-raised: #211f18;
+      --ink: #f4efe4;
+      --text: #cdc6b3;
+      --muted: #8d8672;
+      --line: rgba(244,239,228,0.10);
+      --line-strong: rgba(244,239,228,0.20);
+      --accent: #d9c08c;
+      --accent-strong: #e9d7a6;
+      --accent-soft: rgba(217,192,140,0.14);
+      --accent-ink: #2c2412;
+      --status-good: #74b489;
+      --status-good-soft: rgba(116,180,137,0.14);
+      --status-neutral: #d9c08c;
+      --status-neutral-soft: rgba(217,192,140,0.14);
+      --status-caution: #93a7ba;
+      --status-caution-soft: rgba(147,167,186,0.14);
+      --status-attn: #d38f6c;
+      --status-attn-soft: rgba(211,143,108,0.14);
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 20px 40px -20px rgba(0,0,0,0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14130f;
+    --surface: #1c1a14;
+    --surface-raised: #211f18;
+    --ink: #f4efe4;
+    --text: #cdc6b3;
+    --muted: #8d8672;
+    --line: rgba(244,239,228,0.10);
+    --line-strong: rgba(244,239,228,0.20);
+    --accent: #d9c08c;
+    --accent-strong: #e9d7a6;
+    --accent-soft: rgba(217,192,140,0.14);
+    --accent-ink: #2c2412;
+    --status-good: #74b489;
+    --status-good-soft: rgba(116,180,137,0.14);
+    --status-neutral: #d9c08c;
+    --status-neutral-soft: rgba(217,192,140,0.14);
+    --status-caution: #93a7ba;
+    --status-caution-soft: rgba(147,167,186,0.14);
+    --status-attn: #d38f6c;
+    --status-attn-soft: rgba(211,143,108,0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 20px 40px -20px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+
+  h1, h2, h3 { font-family: var(--font-display); color: var(--ink); margin: 0; text-wrap: balance; }
+
+  .app {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 40px;
+  }
+
+  /* ---------- progress rail ---------- */
+  .rail {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    width: 100%;
+    max-width: 640px;
+    padding-top: 20px;
+    z-index: 5;
+    background: linear-gradient(var(--bg) 78%, transparent);
+  }
+  .rail-track {
+    height: 2px;
+    width: 100%;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rail-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width .5s cubic-bezier(.65,0,.35,1);
+  }
+  .rail-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+  .rail-meta .mark { font-variant-numeric: tabular-nums; }
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    visibility: hidden;
+  }
+  .back-btn.show { visibility: visible; }
+  .back-btn:hover { color: var(--text); }
+  .back-btn svg { width: 12px; height: 12px; }
+
+  /* ---------- stage ---------- */
+  .stage {
+    width: 100%;
+    max-width: 640px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 32px 0 8px;
+  }
+
+  .screen {
+    width: 100%;
+    animation: rise .5s cubic-bezier(.2,.7,.2,1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen { animation: none; }
+    .rail-fill { transition: none; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    margin-bottom: 14px;
+  }
+  .q-title { font-size: clamp(24px, 4vw, 32px); font-weight: 600; line-height: 1.25; }
+  .q-sub { margin-top: 10px; font-size: 15px; color: var(--muted); max-width: 52ch; line-height: 1.55; }
+
+  /* ---------- inputs ---------- */
+  .field {
+    margin-top: 32px;
+  }
+  input[type="text"] {
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--line-strong);
+    padding: 10px 2px;
+    outline: none;
+    transition: border-color .2s ease;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"]::placeholder { color: var(--muted); font-family: var(--font-body); font-size: 17px; }
+
+  .options {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .chip {
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1.5px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, color .15s ease, transform .1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip:active { transform: scale(0.98); }
+  .chip.selected {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 500;
+  }
+  .chip.selected .check { opacity: 1; transform: scale(1); }
+  .check {
+    width: 14px; height: 14px;
+    opacity: 0; transform: scale(0.5);
+    transition: all .15s ease;
+    flex-shrink: 0;
+  }
+  .chip-list.stacked { flex-direction: column; align-items: stretch; }
+  .chip-list.stacked .chip { justify-content: space-between; padding: 14px 18px; }
+
+  .hint {
+    margin-top: 18px;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+
+  /* ---------- footer actions ---------- */
+  .actions {
+    margin-top: 36px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 8px;
+    padding: 13px 26px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: opacity .15s ease, transform .1s ease, background .15s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-primary:not(:disabled):hover { opacity: 0.88; }
+  .btn-ghost {
+    background: none;
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent-strong); }
+  .skip-note { font-size: 12.5px; color: var(--muted); }
+
+  /* ---------- intro screen ---------- */
+  .intro { text-align: left; }
+  .intro .wordmark {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--accent-strong);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .intro .wordmark .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .intro h1 { font-size: clamp(32px, 6vw, 46px); line-height: 1.12; font-weight: 600; }
+  .intro .tagline { font-family: var(--font-display); font-style: italic; color: var(--accent-strong); font-size: 18px; margin-top: 16px; }
+  .intro p.body { margin-top: 20px; font-size: 15.5px; line-height: 1.65; color: var(--text); max-width: 54ch; }
+  .principles {
+    margin-top: 28px;
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .principles span { white-space: nowrap; }
+
+  /* ---------- results ---------- */
+  .dossier .eyebrow { margin-bottom: 8px; }
+  .dossier-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .dossier-name { font-size: clamp(22px, 4vw, 28px); font-weight: 600; }
+  .dossier-role { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .score-panel {
+    margin-top: 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .ring-wrap { position: relative; width: 132px; height: 132px; flex-shrink: 0; }
+  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: var(--line); stroke-width: 9; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1); }
+  .ring-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .ring-num { font-family: var(--font-display); font-size: 34px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+  .ring-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--muted); margin-top: 4px; text-transform: uppercase; }
+
+  .status-block { flex: 1; min-width: 200px; }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-body);
+  }
+  .status-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-copy { margin-top: 12px; font-size: 14px; line-height: 1.6; color: var(--text); max-width: 46ch; }
+
+  .pillars { margin-top: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .pillar-row { }
+  .pillar-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .pillar-name { color: var(--text); font-weight: 500; }
+  .pillar-val { font-family: var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pillar-track { height: 6px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .pillar-fill { height: 100%; background: var(--accent); border-radius: 4px; width: 0%; transition: width 1s cubic-bezier(.2,.7,.2,1); }
+
+  .dossier-foot {
+    margin-top: 28px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .confirm {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--status-good-soft);
+    color: var(--status-good);
+    font-size: 13.5px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  .confirm.show { display: flex; }
+  .fine {
+    margin-top: 22px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 54ch;
+  }
+
+  @media (max-width: 480px) {
+    .score-panel { padding: 20px; gap: 20px; }
+    .actions { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="app">
+  <div class="rail" id="rail">
+    <div class="rail-track"><div class="rail-fill" id="railFill"></div></div>
+    <div class="rail-meta">
+      <button class="back-btn" id="backBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        Back
+      </button>
+      <span class="mark" id="stepMark">Builder Intake</span>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <!-- screens injected here -->
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var answers = {};
+
+  // ---------------- question definitions ----------------
+  var steps = [
+    { id: "intro", type: "intro" },
+    { id: "name", type: "text", pillar: null,
+      eyebrow: "01 · Introductions",
+      title: "Who's applying?",
+      sub: "First name is enough for now — this stays on your device and is never sent anywhere.",
+      placeholder: "Your first name" },
+    { id: "specialty", type: "single", pillar: null,
+      eyebrow: "02 · Specialty",
+      title: "Which seat do you most often fill?",
+      sub: "Choose the mandate you're best known for.",
+      options: ["Fractional CEO","Fractional CFO","Fractional COO","Fractional CTO","Fractional CMO",
+                 "Fractional CRO","Fractional CHRO","Fractional CISO","General Counsel",
+                 "Transformation Executive","AI Advisor","Board Advisor","Strategic Advisor / Consultant"] },
+    { id: "years", type: "single", pillar: "trust",
+      eyebrow: "03 · Track record",
+      title: "Years operating at executive level?",
+      sub: "Fractional, interim, or full-time — total time in the seat.",
+      options: [
+        {l:"Under 5 years", v:20},
+        {l:"5–10 years", v:50},
+        {l:"10–20 years", v:80},
+        {l:"20+ years", v:100}
+      ] },
+    { id: "companies", type: "single", pillar: "trust",
+      eyebrow: "04 · Track record",
+      title: "How many companies have you served as a fractional or advisory executive?",
+      options: [
+        {l:"0–2", v:20},
+        {l:"3–5", v:50},
+        {l:"6–10", v:80},
+        {l:"10+", v:100}
+      ] },
+    { id: "revenue", type: "single", pillar: "trust",
+      eyebrow: "05 · Track record",
+      title: "Largest revenue base you've managed or directly influenced?",
+      options: [
+        {l:"Under $10M", v:25},
+        {l:"$10M – $50M", v:50},
+        {l:"$50M – $250M", v:75},
+        {l:"$250M+", v:100}
+      ] },
+    { id: "board", type: "single", pillar: "trust",
+      eyebrow: "06 · Governance",
+      title: "Board experience?",
+      options: [
+        {l:"Not yet, and not seeking it", v:10},
+        {l:"Not yet, but actively seeking a seat", v:30},
+        {l:"Yes — served previously", v:70},
+        {l:"Yes — currently serving", v:100}
+      ] },
+    { id: "industries", type: "multi", pillar: "ecosystem",
+      eyebrow: "07 · Range",
+      title: "Which industries have you operated in?",
+      sub: "Select all that apply.",
+      options: ["SaaS / Technology","Healthcare & Life Sciences","Financial Services","Manufacturing & Industrial",
+                 "Government / Public Sector","Consumer & Retail","Energy & Climate","Nonprofit / Social Impact"],
+      scoreFromCount: {1:30, 2:55, 3:80, "default":100} },
+    { id: "govwork", type: "single", pillar: "ecosystem",
+      eyebrow: "07a · Public sector",
+      title: "How deep is your government or innovation-funding experience?",
+      sub: "Superclusters, SBIR/STTR, defense procurement, consortium bids, and similar programs.",
+      showIf: function(a){ return (a.industries || []).indexOf("Government / Public Sector") !== -1; },
+      options: [
+        {l:"Aware of these programs, not yet involved", v:20},
+        {l:"Observed or supported one from the sidelines", v:50},
+        {l:"Actively participated in a funded program", v:80},
+        {l:"Led or won a consortium / procurement bid", v:100}
+      ] },
+    { id: "referrals", type: "single", pillar: "collaboration",
+      eyebrow: "08 · Giving",
+      title: "How often do you make warm introductions for peers?",
+      options: [
+        {l:"Rarely", v:20},
+        {l:"Occasionally, when it's obvious", v:45},
+        {l:"Roughly monthly", v:70},
+        {l:"Weekly or more", v:100}
+      ] },
+    { id: "mentorship", type: "single", pillar: "collaboration",
+      eyebrow: "09 · Giving",
+      title: "Do you currently mentor other operators or executives?",
+      options: [
+        {l:"Not currently", v:10},
+        {l:"Informally, when asked", v:45},
+        {l:"Formally — one or two people", v:75},
+        {l:"Formally — three or more", v:100}
+      ] },
+    { id: "teaching", type: "single", pillar: "collaboration",
+      eyebrow: "10 · Giving",
+      title: "Would you host office hours or roundtables for other members?",
+      options: [
+        {l:"Not for now", v:10},
+        {l:"Occasionally, if the topic fit", v:55},
+        {l:"Yes, on a regular cadence", v:100}
+      ] },
+    { id: "frameworks", type: "single", pillar: "contribution",
+      eyebrow: "11 · Knowledge",
+      title: "Would you publish a playbook, framework, or template for the community?",
+      options: [
+        {l:"Not something I'd share", v:10},
+        {l:"Possibly, for the right topic", v:55},
+        {l:"Yes — I already have material ready", v:100}
+      ] },
+    { id: "presence", type: "multi", pillar: "contribution",
+      eyebrow: "12 · Knowledge",
+      title: "Where do you currently publish your thinking?",
+      sub: "Select all that apply — this isn't a requirement, just context.",
+      options: ["Newsletter or Substack","Podcast","Public speaking","Published book","Research or whitepapers","None yet"],
+      exclusive: ["None yet"],
+      scoreFromCount: {0:10, 1:45, 2:70, "default":100} },
+    { id: "results", type: "result" }
+  ];
+
+  var order = []; // resolved indices honoring branches, built as we go
+  var current = 0;
+  var history = [];
+
+  var stage = document.getElementById("stage");
+  var railFill = document.getElementById("railFill");
+  var stepMark = document.getElementById("stepMark");
+  var backBtn = document.getElementById("backBtn");
+
+  function scoredSteps(){
+    return steps.filter(function(s){ return s.type !== "intro" && s.type !== "result"; });
+  }
+
+  function visibleTotal(){
+    return steps.filter(function(s){
+      if (s.type === "intro" || s.type === "result") return false;
+      if (s.showIf && !s.showIf(answers)) return false;
+      return true;
+    }).length;
+  }
+
+  function stepPosition(idx){
+    var count = 0;
+    for (var i=0;i<idx;i++){
+      var s = steps[i];
+      if (s.type === "intro" || s.type === "result") continue;
+      if (s.showIf && !s.showIf(answers)) continue;
+      count++;
+    }
+    return count;
+  }
+
+  function nextIndex(from){
+    var i = from + 1;
+    while (i < steps.length){
+      var s = steps[i];
+      if (s.showIf && !s.showIf(answers)) { i++; continue; }
+      return i;
+    }
+    return steps.length - 1;
+  }
+
+  function prevIndex(from){
+    var i = from - 1;
+    while (i >= 0){
+      var s = steps[i];
+      if (s.type === "intro") return i;
+      if (s.showIf && !s.showIf(answers)) { i--; continue; }
+      return i;
+    }
+    return 0;
+  }
+
+  function updateRail(idx){
+    var step = steps[idx];
+    if (step.type === "intro"){
+      railFill.style.width = "0%";
+      stepMark.textContent = "Builder Intake";
+      backBtn.classList.remove("show");
+      return;
+    }
+    if (step.type === "result"){
+      railFill.style.width = "100%";
+      stepMark.textContent = "Dossier complete";
+      backBtn.classList.remove("show");
+      return;
+    }
+    var total = visibleTotal();
+    var pos = stepPosition(idx) + 1;
+    railFill.style.width = Math.round((pos/total)*100) + "%";
+    stepMark.textContent = pad(pos) + " / " + pad(total);
+    backBtn.classList.add("show");
+  }
+
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+
+  function render(idx){
+    current = idx;
+    var step = steps[idx];
+    updateRail(idx);
+    stage.innerHTML = "";
+    var el;
+    if (step.type === "intro") el = renderIntro(step);
+    else if (step.type === "text") el = renderText(step);
+    else if (step.type === "single") el = renderSingle(step);
+    else if (step.type === "multi") el = renderMulti(step);
+    else if (step.type === "result") el = renderResult(step);
+    stage.appendChild(el);
+  }
+
+  function goNext(){
+    var idx = nextIndex(current);
+    history.push(current);
+    render(idx);
+  }
+  function goBack(){
+    if (history.length === 0) return;
+    var idx = history.pop();
+    render(idx);
+  }
+  backBtn.addEventListener("click", goBack);
+
+  function renderIntro(step){
+    var wrap = document.createElement("div");
+    wrap.className = "screen intro";
+    wrap.innerHTML =
+      '<div class="wordmark"><span class="dot"></span>BUILDER</div>' +
+      '<h1>The trust layer for<br>fractional leadership.</h1>' +
+      '<div class="tagline">Contribution before consumption.</div>' +
+      '<p class="body">Builder is invitation-only. Before you\'re introduced to opportunities, we ask what you bring to the room — your track record, and how you show up for other members. Twelve questions, about three minutes.</p>' +
+      '<div class="principles"><span>TRUST</span><span>COLLABORATION</span><span>CONTRIBUTION</span><span>ECOSYSTEM</span></div>' +
+      '<div class="actions"><button class="btn btn-primary" id="startBtn">Begin the intake</button></div>';
+    wrap.querySelector("#startBtn").addEventListener("click", goNext);
+    return wrap;
+  }
+
+  function screenShell(step, bodyHtml){
+    var wrap = document.createElement("div");
+    wrap.className = "screen";
+    wrap.innerHTML =
+      '<div class="eyebrow">' + step.eyebrow + '</div>' +
+      '<h2 class="q-title">' + step.title + '</h2>' +
+      (step.sub ? '<div class="q-sub">' + step.sub + '</div>' : '') +
+      bodyHtml;
+    return wrap;
+  }
+
+  function renderText(step){
+    var wrap = screenShell(step,
+      '<div class="field"><input type="text" id="textInput" placeholder="' + step.placeholder + '" autocomplete="off"></div>' +
+      '<div class="actions"><button class="btn btn-primary" id="contBtn" disabled>Continue</button></div>');
+    var input = wrap.querySelector("#textInput");
+    var btn = wrap.querySelector("#contBtn");
+    if (answers[step.id]) input.value = answers[step.id];
+    function sync(){ btn.disabled = input.value.trim().length === 0; }
+    input.addEventListener("input", sync);
+    input.addEventListener("keydown", function(e){ if (e.key === "Enter" && !btn.disabled) commit(); });
+    btn.addEventListener("click", commit);
+    setTimeout(function(){ input.focus(); }, 50);
+    sync();
+    function commit(){
+      answers[step.id] = input.value.trim();
+      goNext();
+    }
+    return wrap;
+  }
+
+  function renderSingle(step){
+    var optsHtml = step.options.map(function(o, i){
+      var label = typeof o === "string" ? o : o.l;
+      return '<button class="chip" data-i="' + i + '"><span>' + label + '</span>' +
+        '<svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></button>';
+    }).join("");
+    var stacked = step.options.length > 6 ? " stacked" : "";
+    var wrap = screenShell(step, '<div class="options chip-list' + stacked + '">' + optsHtml + '</div>');
+    var chips = wrap.querySelectorAll(".chip");
+    chips.forEach(function(chip){
+      chip.addEventListener("click", function(){
+        var i = parseInt(chip.getAttribute("data-i"), 10);
+        var o = step.options[i];
+        answers[step.id] = typeof o === "string" ? o : o.l;
+        if (step.pillar) answers["__score_" + step.id] = typeof o === "string" ? null : o.v;
+        chips.forEach(function(c){ c.classList.remove("selected"); });
+        chip.classList.add("selected");
+        setTimeout(goNext, 220);
+      });
+    });
+    return wrap;
+  }
+
+  function renderMulti(step){
+    var selected = answers[step.id] || [];
+    var optsHtml = step.options.map(function(label, i){
+      var isSel = selected.indexOf(label) !== -1;
+      return '<button class="chip' + (isSel ? " selected" : "") + '" data-l="' + label + '"><span>' + label + '</span>' +
+        '<svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></button>';
+    }).join("");
+    var wrap = screenShell(step,
+      '<div class="options">' + optsHtml + '</div>' +
+      '<div class="actions"><button class="btn btn-primary" id="contBtn">Continue</button><span class="skip-note">Select as many as apply</span></div>');
+    var chips = wrap.querySelectorAll(".chip");
+    var btn = wrap.querySelector("#contBtn");
+    chips.forEach(function(chip){
+      chip.addEventListener("click", function(){
+        var label = chip.getAttribute("data-l");
+        var list = answers[step.id] || [];
+        var exclusive = step.exclusive || [];
+        if (exclusive.indexOf(label) !== -1){
+          list = list.indexOf(label) !== -1 ? [] : [label];
+        } else {
+          list = list.filter(function(l){ return exclusive.indexOf(l) === -1; });
+          var pos = list.indexOf(label);
+          if (pos !== -1) list.splice(pos, 1); else list.push(label);
+        }
+        answers[step.id] = list;
+        chips.forEach(function(c){
+          c.classList.toggle("selected", list.indexOf(c.getAttribute("data-l")) !== -1);
+        });
+      });
+    });
+    btn.addEventListener("click", function(){
+      var list = answers[step.id] || [];
+      if (step.scoreFromCount){
+        var n = list.filter(function(l){ return (step.exclusive||[]).indexOf(l) === -1; }).length;
+        var table = step.scoreFromCount;
+        answers["__score_" + step.id] = (n in table) ? table[n] : table["default"];
+      }
+      goNext();
+    });
+    return wrap;
+  }
+
+  function computeScores(){
+    function avg(ids){
+      var vals = ids.map(function(id){ return answers["__score_" + id]; }).filter(function(v){ return typeof v === "number"; });
+      if (vals.length === 0) return null;
+      return vals.reduce(function(a,b){ return a+b; }, 0) / vals.length;
+    }
+    var trust = avg(["years","companies","revenue","board"]);
+    var collaboration = avg(["referrals","mentorship","teaching"]);
+    var contribution = avg(["frameworks","presence"]);
+    var ecosystemIds = ["industries"];
+    if (typeof answers["__score_govwork"] === "number") ecosystemIds.push("govwork");
+    var ecosystem = avg(ecosystemIds);
+
+    var pillars = { trust: trust||0, collaboration: collaboration||0, contribution: contribution||0, ecosystem: ecosystem||0 };
+    var overall = Math.round(0.30*pillars.trust + 0.30*pillars.collaboration + 0.25*pillars.contribution + 0.15*pillars.ecosystem);
+    return { overall: overall, pillars: pillars };
+  }
+
+  function tierFor(score){
+    if (score >= 80) return { label: "Fast-Track Invitation", key: "good",
+      copy: "Your track record and giving profile clear our threshold on every pillar. Applications like yours are typically reviewed within 48 hours." };
+    if (score >= 60) return { label: "Invitation Track", key: "neutral",
+      copy: "A strong profile overall. Builder's membership committee will review your dossier alongside two peer references." };
+    if (score >= 40) return { label: "Under Review", key: "caution",
+      copy: "You clear our bar on some pillars but not yet all of them. We'll follow up for a short conversation before a decision." };
+    return { label: "Waitlist", key: "attn",
+      copy: "Builder membership leans on deep track record and active giving. We'll reach out as your profile — or the network — evolves." };
+  }
+
+  function renderResult(step){
+    var name = answers["name"] || "there";
+    var specialty = answers["specialty"] || "fractional executive";
+    var s = computeScores();
+    var tier = tierFor(s.overall);
+
+    var circumference = 2 * Math.PI * 58;
+    var offset = circumference * (1 - s.overall/100);
+
+    var pillarDefs = [
+      { key: "trust", label: "Trust" },
+      { key: "collaboration", label: "Collaboration" },
+      { key: "contribution", label: "Contribution" },
+      { key: "ecosystem", label: "Ecosystem" }
+    ];
+    var pillarsHtml = pillarDefs.map(function(p){
+      var v = Math.round(s.pillars[p.key]);
+      return '<div class="pillar-row">' +
+        '<div class="pillar-top"><span class="pillar-name">' + p.label + '</span><span class="pillar-val" data-val="' + v + '">00</span></div>' +
+        '<div class="pillar-track"><div class="pillar-fill" data-w="' + v + '"></div></div></div>';
+    }).join("");
+
+    var wrap = document.createElement("div");
+    wrap.className = "screen dossier";
+    wrap.innerHTML =
+      '<div class="eyebrow">Builder Dossier</div>' +
+      '<div class="dossier-head">' +
+        '<div><div class="dossier-name">' + escapeHtml(name) + '</div><div class="dossier-role">' + escapeHtml(specialty) + '</div></div>' +
+      '</div>' +
+      '<div class="score-panel">' +
+        '<div class="ring-wrap"><svg viewBox="0 0 132 132">' +
+          '<circle class="ring-track" cx="66" cy="66" r="58"/>' +
+          '<circle class="ring-fill" cx="66" cy="66" r="58" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + circumference + '" data-offset="' + offset + '"/>' +
+        '</svg><div class="ring-center"><div class="ring-num" data-count="' + s.overall + '">0</div><div class="ring-label">Builder Score</div></div></div>' +
+        '<div class="status-block">' +
+          '<div class="status-pill" style="background:var(--status-' + tier.key + '-soft); color:var(--status-' + tier.key + ')"><span class="dot" style="background:var(--status-' + tier.key + ')"></span>' + tier.label + '</div>' +
+          '<div class="status-copy">' + tier.copy + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pillars">' + pillarsHtml + '</div>' +
+      '<div class="dossier-foot">' +
+        '<button class="btn btn-primary" id="requestBtn">Request introduction</button>' +
+        '<button class="btn btn-ghost" id="restartBtn">Start over</button>' +
+      '</div>' +
+      '<div class="confirm" id="confirmBox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Request received — Builder\'s membership committee reviews dossiers within five business days.</div>' +
+      '<div class="fine">This is a working preview of Builder\'s onboarding intake. Nothing you\'ve entered leaves this page or is stored anywhere — refreshing clears it.</div>';
+
+    wrap.querySelector("#restartBtn").addEventListener("click", function(){
+      answers = {}; history = []; render(0);
+    });
+    wrap.querySelector("#requestBtn").addEventListener("click", function(e){
+      wrap.querySelector("#confirmBox").classList.add("show");
+      e.target.setAttribute("disabled","true");
+    });
+
+    setTimeout(function(){
+      var ring = wrap.querySelector(".ring-fill");
+      ring.style.strokeDashoffset = offset;
+      var num = wrap.querySelector(".ring-num");
+      animateCount(num, s.overall);
+      wrap.querySelectorAll(".pillar-fill").forEach(function(el){ el.style.width = el.getAttribute("data-w") + "%"; });
+      wrap.querySelectorAll(".pillar-val").forEach(function(el){ animateCount(el, parseInt(el.getAttribute("data-val"),10)); });
+    }, 60);
+
+    return wrap;
+  }
+
+  function animateCount(el, target){
+    var start = 0;
+    var dur = 700;
+    var t0 = performance.now();
+    function tick(t){
+      var p = Math.min(1, (t - t0)/dur);
+      var eased = 1 - Math.pow(1-p, 3);
+      el.textContent = Math.round(start + (target-start)*eased);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function escapeHtml(str){
+    var d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  render(0);
+})();
+</script>
+
+</body>
+</html>
