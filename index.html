@@ -153,16 +153,16 @@
   </div>
   <div class="stage" id="stage"></div>
 </div>
- 
+
 <script>
 (function(){
   "use strict";
   var answers = {};
   function sec(n, name){ return n + " · " + name; }
- 
+
   var steps = [
     { id: "intro", type: "intro" },
- 
+
     // ---------------- SECTION 1: YOUR PROFESSIONAL IDENTITY ----------------
     { id: "s1", type: "divider", section: "Your Professional Identity", num: "01",
       note: "The basics — nine quick facts before we get into the real conversation." },
@@ -186,7 +186,7 @@
     { id: "motivation", type: "multi", eyebrow: sec("01","Professional Identity"), title: "What motivated the move to fractional work?", sub: "Select all that apply.",
       options: ["Freedom or autonomy","Variety of problems to solve","Income potential","Escaping corporate politics","Family or lifestyle flexibility","Was between full-time roles","Something else"],
       otherTrigger: "Something else", otherPlaceholder: "What else?" },
- 
+
     // ---------------- SECTION 2: YOUR OPERATING REALITY ----------------
     { id: "s2", type: "divider", section: "Your Operating Reality", num: "02",
       note: "What actually fills your week right now." },
@@ -198,7 +198,7 @@
       options: ["Delivery","Sales","Marketing","Networking","Administration","Learning","Partnerships"] },
     { id: "heaviest_feeling", type: "textarea", eyebrow: sec("02","Operating Reality"), title: "What part of running your fractional practice feels heavier than it should?", optional: true,
       placeholder: "Optional — this is the one we read most closely." },
- 
+
     // ---------------- SECTION 3: FINDING OPPORTUNITIES ----------------
     { id: "s3", type: "divider", section: "Finding Opportunities", num: "03",
       note: "How work actually reaches you — not how it's supposed to." },
@@ -212,7 +212,7 @@
       placeholder: "Optional." },
     { id: "wish_existed", type: "textarea", eyebrow: sec("03","Finding Opportunities"), title: "What do you wish existed to make this easier?", optional: true,
       placeholder: "Optional — dream freely, nothing is off limits here." },
- 
+
     // ---------------- SECTION 4: YOUR PROFESSIONAL NETWORK ----------------
     { id: "s4", type: "divider", section: "Your Professional Network", num: "04",
       note: "Quality over quantity — we want to know who's actually in your corner." },
@@ -224,7 +224,7 @@
       options: ["Yes, a consistent group","Sort of — informal and shifting","No, not really"] },
     { id: "network_worth", type: "textarea", eyebrow: sec("04","Professional Network"), title: "What makes someone worth keeping in your network?", optional: true,
       placeholder: "Optional." },
- 
+
     // ---------------- SECTION 5: COLLABORATION PATTERNS ----------------
     { id: "s5", type: "divider", section: "Collaboration Patterns", num: "05",
       note: "Do you collaborate, when, why — and why not." },
@@ -234,7 +234,7 @@
       placeholder: "Optional." },
     { id: "collab_prevented", type: "textarea", eyebrow: sec("05","Collaboration Patterns"), title: "What prevented more collaboration — with that person, or in general?", optional: true,
       placeholder: "Optional." },
- 
+
     // ---------------- SECTION 6: TRUST & CREDIBILITY ----------------
     { id: "s6", type: "divider", section: "Trust & Credibility", num: "06",
       note: "How you actually evaluate whether another executive is the real thing." },
@@ -242,7 +242,7 @@
       placeholder: "Optional." },
     { id: "trust_rank", type: "rank", eyebrow: sec("06","Trust & Credibility"), title: "Now rank these the same way — most convincing at the top.",
       options: ["Experience","Results","References","Brand","Credentials","Shared connections","Content","Community contribution"] },
- 
+
     // ---------------- SECTION 7: KNOWLEDGE & CONTRIBUTION ----------------
     { id: "s7", type: "divider", section: "Knowledge & Contribution", num: "07",
       note: "What you have that's actually worth sharing." },
@@ -253,7 +253,7 @@
       exclusive: ["None of these"] },
     { id: "rare_knowledge", type: "textarea", eyebrow: sec("07","Knowledge & Contribution"), title: "What knowledge do you have that others rarely see?", optional: true,
       placeholder: "Optional — the thing you know that took years to learn." },
- 
+
     // ---------------- SECTION 8: GOVERNMENT & ENTERPRISE OPPORTUNITIES ----------------
     { id: "s8", type: "divider", section: "Government & Enterprise Opportunities", num: "08",
       note: "A narrower question about access to bigger tables." },
@@ -262,7 +262,7 @@
       exclusive: ["None of these"] },
     { id: "access_barrier", type: "textarea", eyebrow: sec("08","Government & Enterprise"), title: "What prevents smaller executive firms from accessing larger opportunities?", optional: true,
       placeholder: "Optional." },
- 
+
     // ---------------- SECTION 9: EXISTING TOOLS & PLATFORMS ----------------
     { id: "s9", type: "divider", section: "Existing Tools & Platforms", num: "09",
       note: "What you already use, and where it falls short." },
@@ -277,7 +277,7 @@
       showIf: function(a){ return (a.platforms_used||[]).indexOf("None of these") === -1; } },
     { id: "platform_none_why", type: "textarea", eyebrow: sec("09","Existing Tools & Platforms"), title: "What's kept you away from all of these?", optional: true, placeholder: "Optional.",
       showIf: function(a){ return (a.platforms_used||[]).indexOf("None of these") !== -1; } },
- 
+
     // ---------------- SECTION 10: IDEAL EXECUTIVE ECOSYSTEM ----------------
     { id: "s10", type: "divider", section: "Ideal Executive Ecosystem", num: "10",
       note: "Your turn to design it." },
@@ -285,7 +285,7 @@
       placeholder: "Optional — take as much space as you need." },
     { id: "ecosystem_priorities", type: "multi", eyebrow: sec("10","Ideal Ecosystem"), title: "Which of these matter most to you?", sub: "Pick up to four.",
       options: ["Profiles","Referrals","Collaboration","Knowledge sharing","Government opportunities","Events","Marketplace","Reputation"], maxSelect: 4 },
- 
+
     // ---------------- SECTION 11: COMMUNITY VALUES ----------------
     { id: "s11", type: "divider", section: "Community Values", num: "11",
       note: "Culture, before anything gets built." },
@@ -299,7 +299,7 @@
       otherTrigger: "Something else", otherPlaceholder: "What else shouldn't be tolerated?" },
     { id: "defining_values", type: "multi", eyebrow: sec("11","Community Values"), title: "Which two matter most to you, personally?", sub: "Giving mindset, mentorship, collaboration, healthy competition, transparency — pick two.",
       options: ["Giving mindset","Mentorship","Collaboration","Healthy competition","Transparency"], maxSelect: 2 },
- 
+
     // ---------------- SECTION 12: THE FUTURE ----------------
     { id: "s12", type: "divider", section: "The Future", num: "12",
       note: "Last section — where this is all going." },
@@ -309,17 +309,17 @@
       placeholder: "Optional." },
     { id: "success_definition", type: "textarea", eyebrow: sec("12","The Future"), title: "What does success look like for you?", optional: true,
       placeholder: "Optional — last one." },
- 
+
     { id: "results", type: "result" }
   ];
- 
+
   var current = 0;
   var history = [];
   var stage = document.getElementById("stage");
   var railFill = document.getElementById("railFill");
   var stepMark = document.getElementById("stepMark");
   var backBtn = document.getElementById("backBtn");
- 
+
   function isCountable(s){ return s.type !== "intro" && s.type !== "result" && s.type !== "divider"; }
   function isVisible(s){ return !s.showIf || s.showIf(answers); }
   function visibleTotal(){ return steps.filter(function(s){ return isCountable(s) && isVisible(s); }).length; }
@@ -335,7 +335,7 @@
     return Math.max(i, 0);
   }
   function pad(n){ return n < 10 ? "0"+n : ""+n; }
- 
+
   function updateRail(idx){
     var step = steps[idx];
     if (step.type === "intro"){ railFill.style.width = "0%"; stepMark.textContent = "Builder Field Interview"; backBtn.classList.remove("show"); return; }
@@ -352,7 +352,7 @@
     stepMark.textContent = pad(pos) + " / " + pad(total);
     backBtn.classList.add("show");
   }
- 
+
   function render(idx){
     current = idx;
     var step = steps[idx];
@@ -373,7 +373,7 @@
   function goNext(){ var idx = nextIndex(current); history.push(current); render(idx); }
   function goBack(){ if (history.length===0) return; render(history.pop()); }
   backBtn.addEventListener("click", goBack);
- 
+
   function renderIntro(step){
     var wrap = document.createElement("div");
     wrap.className = "screen intro";
@@ -392,7 +392,7 @@
     wrap.querySelector("#startBtn").addEventListener("click", goNext);
     return wrap;
   }
- 
+
   function renderDivider(step){
     var wrap = document.createElement("div");
     wrap.className = "screen divider";
@@ -401,7 +401,7 @@
     wrap.querySelector("#contBtn").addEventListener("click", goNext);
     return wrap;
   }
- 
+
   function screenShell(step, bodyHtml){
     var wrap = document.createElement("div");
     wrap.className = "screen";
@@ -412,7 +412,7 @@
       bodyHtml;
     return wrap;
   }
- 
+
   function renderSingle(step){
     var optsHtml = step.options.map(function(label, i){
       return '<button class="chip" data-i="' + i + '"><span>' + label + '</span>' +
@@ -446,7 +446,7 @@
     }
     return wrap;
   }
- 
+
   function renderMulti(step){
     var selected = answers[step.id] || [];
     var optsHtml = step.options.map(function(label, i){
@@ -493,7 +493,7 @@
     });
     return wrap;
   }
- 
+
   function renderText(step){
     var wrap = screenShell(step,
       '<div class="field"><input type="text" id="textInput" placeholder="' + (step.placeholder||"") + '" autocomplete="off"></div>' +
@@ -510,7 +510,7 @@
     setTimeout(function(){ input.focus(); }, 50);
     return wrap;
   }
- 
+
   function renderTextarea(step){
     var wrap = screenShell(step,
       '<div class="field"><textarea id="taInput" placeholder="' + (step.placeholder||"") + '"></textarea></div>' +
@@ -526,7 +526,7 @@
     setTimeout(function(){ ta.focus(); }, 50);
     return wrap;
   }
- 
+
   function renderRank(step){
     var order = answers[step.id] ? answers[step.id].slice() : step.options.slice();
     function draw(){
@@ -553,9 +553,9 @@
     wrap.querySelector("#contBtn").addEventListener("click", function(){ answers[step.id] = order; goNext(); });
     return wrap;
   }
- 
+
   function escapeHtml(str){ var d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
- 
+
   function renderResult(step){
     var role = answers.role || "Fractional Executive";
     var niche = answers.specialization;
@@ -564,18 +564,18 @@
     var topTrust = (answers.trust_rank && answers.trust_rank[0]) || "—";
     var contributeCount = (answers.would_contribute || []).filter(function(l){ return l !== "None of these"; }).length;
     var vision = answers.five_year_vision;
- 
+
     var cards = [];
     cards.push({ label: "Role", value: role + (niche ? " — " + niche : ""), full: false });
     cards.push({ label: "Where your time actually goes", value: topTime + " takes the most, " + bottomTime + " the least", full: false });
     cards.push({ label: "What convinces you to trust someone", value: topTrust, full: false });
     cards.push({ label: "Contribution appetite", value: contributeCount + " of 7 — " + (contributeCount >= 4 ? "genuinely generous" : contributeCount >= 1 ? "selectively willing" : "not right now"), full: false });
     if (vision) cards.push({ label: "Five years from now, in your words", value: '“' + vision + '”', full: true, quote: true });
- 
+
     var cardsHtml = cards.map(function(c){
       return '<div class="highlight-card' + (c.full?" full":"") + '"><div class="hl">' + c.label + '</div><div class="hv' + (c.quote?" quote":"") + '">' + escapeHtml(c.value) + '</div></div>';
     }).join("");
- 
+
     var wrap = document.createElement("div");
     wrap.className = "screen dossier";
     wrap.innerHTML =
@@ -588,7 +588,7 @@
       '</div>' +
       '<div class="confirm" id="confirmBox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Received — this is exactly the kind of raw material Builder needs before writing another line of product.</div>' +
       '<div class="fine">This is a working preview of Builder\'s field interview. Nothing is scored here on purpose — the value of this instrument is qualitative. All answers stay in your browser; nothing is transmitted or stored anywhere yet. Wire this to a form backend before running it with real respondents.</div>';
- 
+
     wrap.querySelector("#restartBtn").addEventListener("click", function(){ answers = {}; history = []; render(0); });
     wrap.querySelector("#requestBtn").addEventListener("click", function(e){
       wrap.querySelector("#confirmBox").classList.add("show");
@@ -596,10 +596,9 @@
     });
     return wrap;
   }
- 
+
   render(0);
 })();
 </script>
 </body>
 </html>
- 
